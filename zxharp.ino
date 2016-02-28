@@ -91,10 +91,11 @@ void map_to_note(int xx, int zz, int & note, int & velocity)
         return;
     }
 
-    double val = (double) (xx - min_xx) / (double) range_xx;
-    note = 127 - (int)(val * 127);
+    double nval = (double) (xx - min_xx) / (double) range_xx;
+    note = 127 - (int)(nval * 127);
 
-    velocity = 127 - zz;
+    double vval = (double) (zz) / (double) MAXZ;
+    velocity = 127 - (int) (vval * 127);
 
 #if defined(DEBUG)
     String msg = "pos: ";
@@ -135,8 +136,10 @@ void loop()
             int note;
             int velocity;
             map_to_note(xx, zz, note, velocity);
-            MIDI.sendNoteOff(old_note, 0, MIDI_CHANNEL);
-            MIDI.sendNoteOn(note, velocity, MIDI_CHANNEL);
+            if (note != old_note || velocity != old_velocity) {
+                MIDI.sendNoteOff(old_note, 0, MIDI_CHANNEL);
+                MIDI.sendNoteOn(note, velocity, MIDI_CHANNEL);
+            }
             old_xx = xx;
             old_zz = zz;
             old_note = note;
